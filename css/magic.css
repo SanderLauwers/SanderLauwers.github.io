@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body {
+    background-image: linear-gradient(90deg, #070088 0%, #140094 35%, #4600d1 100%);
+    font-family: "Roboto";
+}
+
+.rickcursor {
+    cursor: url(../img/NotARickroll_cursor.png) 5 0, pointer;
+
+}
+
+#page {
+    top: 4vh;
+    position: absolute;
+}
+
+#easteregg {
+    position: absolute;
+    top: 1vh;
+    cursor: pointer;
+    right: 1vw;
+    height: 3vh;
+}

@@ -1,0 +1,58 @@
+#navparent {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5vh;
+}
+
+#navbar {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    background-color: black;
+}
+
+@keyframes fadein {
+    from {
+        font-size: 1vh;
+    }
+    to {
+        font-size: 3vh;
+    }
+}
+
+.nav {
+    animation-name: fadein;
+    animation-duration: 500ms;
+    display: flex;
+    height: 100%;
+    width: 15%;
+    color: white;
+    font-size: 3vh;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    transition: 500ms;
+    background-color: black;
+}
+
+.nav:hover {
+    background-color: grey;
+}
+
+.navtext {
+    text-align: center;
+}
+
+.selected {
+    background-color: rgb(112, 112, 112);
+    cursor: default;   
+}
+
+@media screen and (max-width: 1150px) {
+    .nav {
+        width: 175px;
+    }
+}
