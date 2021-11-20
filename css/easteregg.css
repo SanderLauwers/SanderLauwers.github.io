@@ -5,7 +5,7 @@ body {
     height: 100vh;
     margin: 0;
     background-color: #54c4cc;
-    font-family: "Roboto";
+    font-family: "Roboto", Arial;
 }
 
 #canvasparent {

@@ -1,26 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
+@font-face {
+    font-family: "pacman-font";
+    src: url(../font/crackman/crackman.ttf) format("truetype"),
+         url(../font/crackman/crackman.woff) format("woff");
+}
+
 body {
-    font-family: "Roboto";
+    font-family: "Roboto", Arial;
 }
 
 #page {
-    top: 5vh;
-    position: absolute;
     width: 100%;
-    margin: 0;
-    padding: 0;
-    left: 0
+    height: 100%;
+    background-color: yellow;
+    color: blue
 }
 
 h1 {
-    color: navy;
+    font-family: "pacman-font";
+    font-size: 50px;
 }
 
-#imgparent {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
+#img {
+    position: absolute;
+    top: 0;
+    right: 0;
 }

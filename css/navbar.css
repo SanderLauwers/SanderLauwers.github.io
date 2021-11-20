@@ -38,6 +38,14 @@
     background-color: black;
 }
 
+#page {
+    top: 5vh;
+    position: absolute;
+    margin: 0;
+    padding: 0;
+    left: 0;
+}
+
 .nav:hover {
     background-color: grey;
 }
@@ -54,5 +62,19 @@
 @media screen and (max-width: 1150px) {
     .nav {
         width: 175px;
+    }
+}
+
+@media screen and (max-height: 1100px) {
+    #navbar {
+        height: 55px;
+    }
+
+    .nav {
+        font-size: 33px;
+    }
+
+    #page {
+        top: 55px;
     }
 }
