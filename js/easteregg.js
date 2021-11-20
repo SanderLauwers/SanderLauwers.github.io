@@ -8,6 +8,8 @@ const minPipeDelay = 50;
 const pipeLength = 258; // in px on png
 const pipeGap = 84; // in px on png
 const playerXPos = 100;
+let highScore = Number(localStorage.getItem("high-score")) || 0;
+let highScoreIncreased = false;
 class Sprite {
     constructor(width, height, imgURL) {
         this.width = 0;
@@ -64,6 +66,7 @@ let gameMaster = {
         this.score = 0;
         this.pipes = [];
         this.pipeDelay = initialPipeDelay;
+        highScoreIncreased = false;
     },
     die: function () {
         this.died = true;
@@ -133,12 +136,19 @@ function movePipes() {
         const yPos = (-pipeLength * 2) + 120 + Math.floor(Math.random() * (560 - (pipeGap * 2)));
         gameMaster.pipes.push(new PositionSprite(new Sprite(52, 1200, "../img/game/pipes.png"), 800, yPos)); // original size: 26x600, so *2
     }
+    // move pipes
     let indexToDelete = null;
     gameMaster.pipes.forEach((pipe, index) => {
         pipe.xPosition -= speed;
-        if (pipe.xPosition <= playerXPos - 52 && !pipe.gaveScore) {
+        if (pipe.xPosition <= playerXPos - 52 && !pipe.gaveScore) { // give score
             gameMaster.score += 1;
             pipe.gaveScore = true;
+            // check highscore
+            if (gameMaster.score > highScore) {
+                highScore = gameMaster.score;
+                localStorage.setItem("high-score", highScore.toString());
+                highScoreIncreased = true;
+            }
         }
         if (pipe.xPosition <= -pipe.sprite.width)
             indexToDelete = index;
@@ -171,12 +181,20 @@ function drawPipes() {
     });
 }
 function drawUI() {
-    gameMaster.ctx.font = "40px Arial";
+    gameMaster.ctx.font = "40px Roboto";
     gameMaster.ctx.fillText(gameMaster.score.toString(), 400 - gameMaster.ctx.measureText(gameMaster.score.toString()).width / 2, 50);
     if (!gameMaster.died && !gameMaster.started)
         gameMaster.ctx.fillText("Press space to start!", 400 - gameMaster.ctx.measureText("Press space to start!").width / 2, 400);
-    else if (gameMaster.died && !gameMaster.started)
-        gameMaster.ctx.fillText("Press space to reset!", 400 - gameMaster.ctx.measureText("Press space to reset!").width / 2, 400);
+    else if (gameMaster.died && !gameMaster.started) {
+        if (highScoreIncreased) {
+            gameMaster.ctx.fillText("New high score!", 400 - gameMaster.ctx.measureText("New high score!").width / 2, 340);
+            gameMaster.ctx.fillText("Press space to reset.", 400 - gameMaster.ctx.measureText("Press space to reset.").width / 2, 400);
+        }
+        else
+            gameMaster.ctx.fillText("Press space to reset!", 400 - gameMaster.ctx.measureText("Press space to reset!").width / 2, 400);
+    }
+    gameMaster.ctx.font = "20px Arial";
+    gameMaster.ctx.fillText("High Score: " + highScore.toString(), 10, 35); // upper left corner
 }
 gameMaster.initiate();
 this.updateIntervalID = setInterval(update, 20);

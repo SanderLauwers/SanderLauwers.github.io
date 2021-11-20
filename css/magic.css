@@ -7,12 +7,6 @@ body {
 
 .rickcursor {
     cursor: url(../img/NotARickroll_cursor.png) 5 0, pointer;
-
-}
-
-#page {
-    top: 4vh;
-    position: absolute;
 }
 
 #easteregg {
@@ -21,4 +15,30 @@ body {
     cursor: pointer;
     right: 1vw;
     height: 3vh;
+}
+
+#page {
+    top: 5vh;
+    position: absolute;
+}
+
+@keyframes comein {
+    0% {
+        left: -50vw;
+    }
+    to {
+        left: 0;
+    }
+}
+
+#anim {
+    position: absolute;
+    animation-name: comein;
+    animation-duration: 2s;
+    left: 50vw;
+    color: white;
+    font-size: 50px;
+    text-align: center;
+    width: 100%;
+    height: 50px;
 }
