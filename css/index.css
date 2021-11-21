@@ -28,9 +28,9 @@ h1, h2, h3 {
 
 #img {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 35%;
+    top: 0.4vw;
+    right: 0.4vw;
+    width: 34.6%;
 }
 
 @media screen and (min-width: 1400px) {
