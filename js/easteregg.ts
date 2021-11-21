@@ -10,6 +10,8 @@ const minPipeDelay = 50;
 const pipeLength = 258; // in px on png
 const pipeGap = 84; // in px on png
 const playerXPos = 100;
+const maxUpRot = 45;
+const maxDownRot = 55;
 
 let highScore: number = Number(localStorage.getItem("high-score")) || 0;
 let highScoreIncreased: boolean = false;
@@ -38,10 +40,11 @@ class PositionSprite {
 }
 
 let gameMaster: GameMaster = {
-    canvas: document.getElementById("gamecanvas"),
+    canvas: document.getElementById("gamecanvas") as HTMLCanvasElement,
     ctx: null,
     playerPos: 360,
-    player: new Sprite(41, 51, "../img/game/eastereggcolored.png"),
+    playerRot: 0,
+    player: new Sprite(50, 50, "../img/game/pac-man-opened.png"),
     backgrounds: [],
     pipes: [],
     died: false,
@@ -185,7 +188,18 @@ function drawBackgrounds() {
 }
 
 function drawPlayer() {
-    gameMaster.ctx.drawImage(gameMaster.player.img, playerXPos, gameMaster.playerPos, gameMaster.player.width, gameMaster.player.height);
+    // rotate player with acceleration
+    if (gameMaster.acceleration < 0) gameMaster.playerRot = -gameMaster.acceleration / jumpForce * maxUpRot;
+    else if (gameMaster.acceleration >= 0) gameMaster.playerRot = gameMaster.acceleration / maxDownwardsAcceleration * maxDownRot;
+
+    gameMaster.ctx.save();
+
+    gameMaster.ctx.translate(playerXPos + gameMaster.player.width / 2, gameMaster.playerPos + gameMaster.player.height / 2);
+
+    gameMaster.ctx.rotate(gameMaster.playerRot * Math.PI / 180); // must be radians
+    gameMaster.ctx.drawImage(gameMaster.player.img, -gameMaster.player.width / 2, -gameMaster.player.height / 2, gameMaster.player.width, gameMaster.player.height);
+
+    gameMaster.ctx.restore();
 }
 
 function drawPipes() {
@@ -214,6 +228,7 @@ this.updateIntervalID = setInterval(update, 20);
 
 interface GameMaster { // for IntelliSense and clarification, not really necessary but I like it
     playerPos: number;
+    playerRot: number;
     started: boolean
     died: boolean;
     jumped: boolean;
@@ -227,7 +242,7 @@ interface GameMaster { // for IntelliSense and clarification, not really necessa
     backgrounds: PositionSprite[];
     pipes: PositionSprite[];
 
-    canvas: HTMLElement;
+    canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
 
     initiate: Function;
