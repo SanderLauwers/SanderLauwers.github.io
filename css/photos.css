@@ -1,5 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
 
+@font-face {
+    font-family: "pacman-font";
+    src: url(../font/crackman/crackman.ttf) format("truetype"),
+         url(../font/crackman/crackman.woff) format("woff");
+}
+
 body {
-    font-family: "Roboto", Arial;
+    font-family: "pacman-font", "Roboto", Arial;
+    background-color: blue;
+}
+
+div, div > a {
+    color: yellow;
+    font-size: 20px;
+}
+
+#photo-nav {
+    position: absolute;
+    bottom: 0;
+    right: 1%;
+    height: 25px;
+}
+
+#page {
+    width: 100%;
 }
