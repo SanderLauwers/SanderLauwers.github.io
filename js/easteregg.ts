@@ -27,7 +27,27 @@ pipesWithBallImg.src = "../img/game/pipes-with-ball.png";
 const pipesImg = document.createElement("img");
 pipesImg.src = "../img/game/pipes.png";
 
-const nomSounds = [new Audio("../audio/nom/nomnom-hoog.m4a")];
+const music = new Audio("../audio/pacman-theme.mp3");
+music.loop = true;
+music.volume = 0.2;
+const nomSounds = [new Audio("../audio/nom/nomnom.m4a"), new Audio("../audio/nom/njam.m4a"), new Audio("../audio/nom/hmmm.m4a")];
+
+let enableMusic = true;
+let enableSfx = true;
+const musicElement = document.getElementById("music-checkbox") as HTMLInputElement;
+const sfxElement = document.getElementById("sfx-checkbox") as HTMLInputElement;
+sfxElement.onclick = checkSettings;
+musicElement.onclick = checkSettings;
+function checkSettings() {
+    enableMusic = musicElement.checked;
+    enableSfx = sfxElement.checked;
+
+    if (!enableMusic) {
+        music.pause();
+        music.currentTime = 0;
+    }
+    else music.play();
+}
 
 class Sprite {
     width: number = 0;
@@ -78,6 +98,8 @@ let gameMaster: GameMaster = {
     },
     start: function() {
         this.started = true;
+        music.currentTime = 0;
+        if (enableMusic) music.play();
     },
     reset: function() {
         this.playerPos = 360;
@@ -94,6 +116,7 @@ let gameMaster: GameMaster = {
     die: function() {
         this.died = true;
         this.started = false;
+        music.pause();
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -119,6 +142,8 @@ document.body.onkeyup = e => {
 }
 
 function update() {
+    console.log(enableMusic, enableSfx)
+
     // check if died
     if (gameMaster.playerPos > 749) {
         gameMaster.playerPos = 750;
@@ -171,7 +196,7 @@ function movePipes() {
     gameMaster.pipes.forEach((pipe, index) => {
         pipe.xPosition -= speed;
         if (pipe.xPosition <= playerXPos - 52 && !pipe.gaveScore) { // give score
-            nomSounds[0].play();
+            if (enableSfx) nomSounds[Math.floor(Math.random() * nomSounds.length)].play();
 
             gameMaster.score += 1;
             pipe.gaveScore = true;

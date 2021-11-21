@@ -68,3 +68,10 @@ body {
     width: 100vw;
     left: 0;
 }
+
+#sound-settings {
+    position: absolute;
+    top: 60px;
+    left: 5px;
+    z-index: 101;
+}
