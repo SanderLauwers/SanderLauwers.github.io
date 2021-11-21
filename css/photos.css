@@ -7,11 +7,14 @@
 }
 
 body {
-    font-family: "pacman-font", "Roboto", Arial;
+    font-family: "Roboto", Arial;
     background-color: blue;
+    height: 100vh;
+    margin: 0;
 }
 
-div, div > a {
+#photo-nav, div > a {
+    font-family: "pacman-font", "Roboto", Arial;
     color: yellow;
     font-size: 20px;
 }
