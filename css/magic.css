@@ -6,7 +6,7 @@ body {
 }
 
 .rickcursor {
-    cursor: url(../img/NotARickroll_cursor.png) 5 0, pointer;
+    cursor: url(../img/rickroll-cursor.png) 5 0, pointer;
 }
 
 #easteregg {
