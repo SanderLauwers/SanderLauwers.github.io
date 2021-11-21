@@ -115,21 +115,39 @@ let gameMaster = {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 };
+let inputType = "spacebar";
 document.body.onkeydown = e => {
     if (e.key == " ") {
-        if (gameMaster.died)
+        if (gameMaster.died) {
+            inputType = "spacebar";
             gameMaster.reset();
-        else if (!gameMaster.started)
+        }
+        else if (!gameMaster.started) {
+            inputType = "spacebar";
             gameMaster.start();
-        if (!gameMaster.jumped && !gameMaster.died && gameMaster.moving) {
+        }
+        if (!gameMaster.jumped && !gameMaster.died && gameMaster.moving && inputType == "spacebar") {
             gameMaster.jumped = true;
             gameMaster.acceleration = jumpForce;
         }
     }
 };
 document.body.onkeyup = e => {
-    if (e.key == " " && gameMaster.jumped && !gameMaster.died) {
+    if (e.key == " " && gameMaster.jumped && !gameMaster.died && inputType == "spacebar") {
         gameMaster.jumped = false;
+    }
+};
+gameMaster.canvas.onclick = e => {
+    if (gameMaster.died) {
+        inputType = "click";
+        gameMaster.reset();
+    }
+    else if (!gameMaster.started) {
+        inputType = "click";
+        gameMaster.start();
+    }
+    if (!gameMaster.died && gameMaster.moving && inputType == "click") {
+        gameMaster.acceleration = jumpForce;
     }
 };
 function update() {
@@ -243,14 +261,14 @@ function drawUI() {
     gameMaster.ctx.font = "40px Roboto";
     gameMaster.ctx.fillText(gameMaster.score.toString(), 400 - gameMaster.ctx.measureText(gameMaster.score.toString()).width / 2, 50);
     if (!gameMaster.died && !gameMaster.started)
-        gameMaster.ctx.fillText("Press space to start!", 400 - gameMaster.ctx.measureText("Press space to start!").width / 2, 400);
+        gameMaster.ctx.fillText("Press space or click to start!", 400 - gameMaster.ctx.measureText("Press space or click to start!").width / 2, 400);
     else if (gameMaster.died && !gameMaster.started) {
         if (highScoreIncreased) {
             gameMaster.ctx.fillText("New high score!", 400 - gameMaster.ctx.measureText("New high score!").width / 2, 340);
-            gameMaster.ctx.fillText("Press space to reset.", 400 - gameMaster.ctx.measureText("Press space to reset.").width / 2, 400);
+            gameMaster.ctx.fillText("Press space or click to reset.", 400 - gameMaster.ctx.measureText("Press space or click to reset.").width / 2, 400);
         }
         else
-            gameMaster.ctx.fillText("Press space to reset!", 400 - gameMaster.ctx.measureText("Press space to reset!").width / 2, 400);
+            gameMaster.ctx.fillText("Press space or click to reset!", 400 - gameMaster.ctx.measureText("Press space or click to reset!").width / 2, 400);
     }
     gameMaster.ctx.font = "20px Arial";
     gameMaster.ctx.fillText("High Score: " + highScore.toString(), 10, 35); // upper left corner

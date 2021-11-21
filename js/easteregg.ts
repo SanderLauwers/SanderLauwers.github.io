@@ -41,7 +41,7 @@ musicElement.onclick = checkSettings;
 function checkSettings() {
     enableMusic = musicElement.checked;
     enableSfx = sfxElement.checked;
-
+    
     if (!enableMusic) {
         music.pause();
         music.currentTime = 0;
@@ -123,27 +123,49 @@ let gameMaster: GameMaster = {
     }
 }
 
+let inputType = "spacebar";
+
 document.body.onkeydown = e => {
     if (e.key == " ") {
-        if (gameMaster.died) gameMaster.reset();
-        else if (!gameMaster.started) gameMaster.start();
-
-        if (!gameMaster.jumped && !gameMaster.died && gameMaster.moving) {
+        if (gameMaster.died) {
+            inputType = "spacebar";
+            gameMaster.reset();
+        }
+        else if (!gameMaster.started) {
+            inputType = "spacebar";
+            gameMaster.start();
+        }
+        
+        if (!gameMaster.jumped && !gameMaster.died && gameMaster.moving && inputType == "spacebar") {
             gameMaster.jumped = true;
             gameMaster.acceleration = jumpForce;
         }
     }
-    
 }
 document.body.onkeyup = e => {
-    if (e.key == " " && gameMaster.jumped && !gameMaster.died) {
+    if (e.key == " " && gameMaster.jumped && !gameMaster.died && inputType == "spacebar") {
         gameMaster.jumped = false;
+    }
+}
+
+gameMaster.canvas.onclick = e => {
+    if (gameMaster.died) {
+        inputType = "click";
+        gameMaster.reset();
+    }
+    else if (!gameMaster.started) {
+        inputType = "click";
+        gameMaster.start();
+    }
+    
+    if (!gameMaster.died && gameMaster.moving && inputType == "click") {
+        gameMaster.acceleration = jumpForce;
     }
 }
 
 function update() {
     console.log(enableMusic, enableSfx)
-
+    
     // check if died
     if (gameMaster.playerPos > 749) {
         gameMaster.playerPos = 750;
@@ -155,12 +177,12 @@ function update() {
         if (gameMaster.acceleration < maxDownwardsAcceleration) gameMaster.acceleration += gravity;
         gameMaster.playerPos += gameMaster.acceleration;
     }
-
+    
     // check pipe spawner + score
     if (gameMaster.started && !gameMaster.died && gameMaster.moving) {
         moveBackgrounds();
         movePipes();
-
+        
         checkPipeCollision();
     }
     
@@ -171,7 +193,7 @@ function update() {
     drawPipes();
     drawPlayer();
     drawUI();
-
+    
     gameMaster.framesSincePipeSpawn += 1;
 }
 
@@ -190,25 +212,25 @@ function movePipes() {
         const yPos = (-pipeLength * 2) + 120 + Math.floor(Math.random() * (560 - (pipeGap * 2)));
         gameMaster.pipes.push(new PositionSprite(new Sprite(110, 1200, pipesWithBallImg), 800, yPos)) // original size: 26x600, so *2
     }
-
+    
     // move pipes
     let indexToDelete = null;
     gameMaster.pipes.forEach((pipe, index) => {
         pipe.xPosition -= speed;
         if (pipe.xPosition <= playerXPos - 52 && !pipe.gaveScore) { // give score
             if (enableSfx) nomSounds[Math.floor(Math.random() * nomSounds.length)].play();
-
+            
             gameMaster.score += 1;
             pipe.gaveScore = true;
-
+            
             pipe.sprite.img = pipesImg;
             pipe.sprite.width = 52;
-
+            
             gameMaster.player.img = playerClosedImg;
             setTimeout(() => {
                 gameMaster.player.img = playerOpenedImg;
             }, 500);
-
+            
             // check highscore
             if (gameMaster.score > highScore) {
                 highScore = gameMaster.score;
@@ -239,18 +261,18 @@ function drawBackgrounds() {
 
 function drawPlayer() {
     if (!gameMaster.started && !gameMaster.died) return gameMaster.ctx.drawImage(gameMaster.player.img, playerXPos, gameMaster.playerPos, gameMaster.player.width, gameMaster.player.height);
-
+    
     // rotate player with acceleration
     if (gameMaster.acceleration < 0) gameMaster.playerRot = -gameMaster.acceleration / jumpForce * maxUpRot;
     else if (gameMaster.acceleration >= 0) gameMaster.playerRot = gameMaster.acceleration / maxDownwardsAcceleration * maxDownRot;
-
+    
     gameMaster.ctx.save();
-
+    
     gameMaster.ctx.translate(playerXPos + gameMaster.player.width / 2, gameMaster.playerPos + gameMaster.player.height / 2);
-
+    
     gameMaster.ctx.rotate(gameMaster.playerRot * Math.PI / 180); // must be radians
     gameMaster.ctx.drawImage(gameMaster.player.img, -gameMaster.player.width / 2, -gameMaster.player.height / 2, gameMaster.player.width, gameMaster.player.height);
-
+    
     gameMaster.ctx.restore();
 }
 
@@ -263,13 +285,13 @@ function drawPipes() {
 function drawUI() {
     gameMaster.ctx.font = "40px Roboto";
     gameMaster.ctx.fillText(gameMaster.score.toString(), 400 - gameMaster.ctx.measureText(gameMaster.score.toString()).width / 2, 50);
-    if (!gameMaster.died && !gameMaster.started) gameMaster.ctx.fillText("Press space to start!", 400 - gameMaster.ctx.measureText("Press space to start!").width / 2, 400);
+    if (!gameMaster.died && !gameMaster.started) gameMaster.ctx.fillText("Press space or click to start!", 400 - gameMaster.ctx.measureText("Press space or click to start!").width / 2, 400);
     else if (gameMaster.died && !gameMaster.started) {
         if (highScoreIncreased) {
             gameMaster.ctx.fillText("New high score!", 400 - gameMaster.ctx.measureText("New high score!").width / 2, 340);
-            gameMaster.ctx.fillText("Press space to reset.", 400 - gameMaster.ctx.measureText("Press space to reset.").width / 2, 400);
+            gameMaster.ctx.fillText("Press space or click to reset.", 400 - gameMaster.ctx.measureText("Press space or click to reset.").width / 2, 400);
         }
-        else gameMaster.ctx.fillText("Press space to reset!", 400 - gameMaster.ctx.measureText("Press space to reset!").width / 2, 400);
+        else gameMaster.ctx.fillText("Press space or click to reset!", 400 - gameMaster.ctx.measureText("Press space or click to reset!").width / 2, 400);
     }
     gameMaster.ctx.font = "20px Arial";
     gameMaster.ctx.fillText("High Score: " + highScore.toString(), 10, 35); // upper left corner
@@ -289,14 +311,14 @@ interface GameMaster { // for IntelliSense and clarification, not really necessa
     score: number;
     framesSincePipeSpawn: number;
     pipeDelay: number;
-
+    
     player: Sprite;
     backgrounds: PositionSprite[];
     pipes: PositionSprite[];
-
+    
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
-
+    
     initiate: Function;
     start: Function;
     clear: Function;
