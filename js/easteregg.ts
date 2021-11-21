@@ -16,14 +16,27 @@ const maxDownRot = 55;
 let highScore: number = Number(localStorage.getItem("high-score")) || 0;
 let highScoreIncreased: boolean = false;
 
+const playerOpenedImg = document.createElement("img");
+playerOpenedImg.src = "../img/game/pac-man-opened.png";
+const playerClosedImg = document.createElement("img");
+playerClosedImg.src = "../img/game/pac-man-closed.png";
+const backgroundImg = document.createElement("img");
+backgroundImg.src = "../img/game/background.png";
+const pipesWithBallImg = document.createElement("img");
+pipesWithBallImg.src = "../img/game/pipes-with-ball.png";
+const pipesImg = document.createElement("img");
+pipesImg.src = "../img/game/pipes.png";
+
+const nomSounds = [new Audio("../audio/nom/nomnom-hoog.m4a")];
+
 class Sprite {
     width: number = 0;
     height: number = 0;
-    img = document.createElement("img");
-    constructor(width: number, height: number, imgURL: string) {
+    img: HTMLImageElement;
+    constructor(width: number, height: number, img: HTMLImageElement) {
         this.width = width;
         this.height = height;
-        this.img.src = imgURL;
+        this.img = img;
     }
 }
 
@@ -44,7 +57,7 @@ let gameMaster: GameMaster = {
     ctx: null,
     playerPos: 360,
     playerRot: 0,
-    player: new Sprite(50, 50, "../img/game/pac-man-opened.png"),
+    player: new Sprite(50, 50, playerOpenedImg),
     backgrounds: [],
     pipes: [],
     died: false,
@@ -60,7 +73,7 @@ let gameMaster: GameMaster = {
         this.canvas.height = 800;
         this.ctx = this.canvas.getContext("2d");
         for (let i = 0; i < 3; i++) {
-            this.backgrounds[i] = new PositionSprite(new Sprite(456, 800, "../img/game/background.png"), 0 + i * 456); // original ratio: 144x254
+            this.backgrounds[i] = new PositionSprite(new Sprite(456, 800, backgroundImg), 0 + i * 456); // original ratio: 144x254
         }
     },
     start: function() {
@@ -68,6 +81,7 @@ let gameMaster: GameMaster = {
     },
     reset: function() {
         this.playerPos = 360;
+        this.playerRot = 0;
         this.died = false;
         this.jumped = false;
         this.moving = true;
@@ -149,7 +163,7 @@ function movePipes() {
         gameMaster.framesSincePipeSpawn = 0;
         if (gameMaster.pipeDelay > minPipeDelay) gameMaster.pipeDelay -= pipeDelayDecline;
         const yPos = (-pipeLength * 2) + 120 + Math.floor(Math.random() * (560 - (pipeGap * 2)));
-        gameMaster.pipes.push(new PositionSprite(new Sprite(52, 1200, "../img/game/pipes.png"), 800, yPos)) // original size: 26x600, so *2
+        gameMaster.pipes.push(new PositionSprite(new Sprite(110, 1200, pipesWithBallImg), 800, yPos)) // original size: 26x600, so *2
     }
 
     // move pipes
@@ -157,8 +171,19 @@ function movePipes() {
     gameMaster.pipes.forEach((pipe, index) => {
         pipe.xPosition -= speed;
         if (pipe.xPosition <= playerXPos - 52 && !pipe.gaveScore) { // give score
+            nomSounds[0].play();
+
             gameMaster.score += 1;
             pipe.gaveScore = true;
+
+            pipe.sprite.img = pipesImg;
+            pipe.sprite.width = 52;
+
+            gameMaster.player.img = playerClosedImg;
+            setTimeout(() => {
+                gameMaster.player.img = playerOpenedImg;
+            }, 500);
+
             // check highscore
             if (gameMaster.score > highScore) {
                 highScore = gameMaster.score;
@@ -188,6 +213,8 @@ function drawBackgrounds() {
 }
 
 function drawPlayer() {
+    if (!gameMaster.started && !gameMaster.died) return gameMaster.ctx.drawImage(gameMaster.player.img, playerXPos, gameMaster.playerPos, gameMaster.player.width, gameMaster.player.height);
+
     // rotate player with acceleration
     if (gameMaster.acceleration < 0) gameMaster.playerRot = -gameMaster.acceleration / jumpForce * maxUpRot;
     else if (gameMaster.acceleration >= 0) gameMaster.playerRot = gameMaster.acceleration / maxDownwardsAcceleration * maxDownRot;
