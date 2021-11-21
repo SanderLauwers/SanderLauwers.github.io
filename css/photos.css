@@ -24,8 +24,19 @@ body {
     bottom: 0;
     right: 1%;
     height: 25px;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
 
 #page {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@media screen and (max-width: 1234px) {
+    #photo-nav {
+        overflow-y: scroll;
+    }
 }
