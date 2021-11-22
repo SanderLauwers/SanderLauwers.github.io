@@ -12,6 +12,10 @@ const pipeGap = 84; // in px on png
 const playerXPos = 100;
 const maxUpRot = 45;
 const maxDownRot = 55;
+const ghostSpeed = 2;
+const ghostTurnMax = 2;
+const ghostTurnMultiplier = 0.4;
+const ghostOpacitySpeed = 1;
 let highScore = Number(localStorage.getItem("high-score")) || 0;
 let highScoreIncreased = false;
 const playerOpenedImg = document.createElement("img");
@@ -24,10 +28,14 @@ const pipesWithBallImg = document.createElement("img");
 pipesWithBallImg.src = "../img/game/pipes-with-ball.png";
 const pipesImg = document.createElement("img");
 pipesImg.src = "../img/game/pipes.png";
+const ghostImg = document.createElement("img");
+ghostImg.src = "../img/game/red-ghost.png";
 const music = new Audio("../audio/pacman-theme.mp3");
 music.loop = true;
 music.volume = 0.2;
 const nomSounds = [new Audio("../audio/nom/nomnom.m4a"), new Audio("../audio/nom/njam.m4a"), new Audio("../audio/nom/hmmm.m4a")];
+const deathSound = new Audio("../audio/death.mp3");
+deathSound.volume = 0.2;
 let enableMusic = true;
 let enableSfx = true;
 const musicElement = document.getElementById("music-checkbox");
@@ -80,6 +88,11 @@ let gameMaster = {
     acceleration: 0,
     framesSincePipeSpawn: 0,
     pipeDelay: initialPipeDelay,
+    ghost: new Sprite(40, 40, ghostImg),
+    ghostRotation: 0,
+    ghostYPosition: 0,
+    ghostTurnDirection: 1,
+    ghostOpacity: 100,
     initiate: function () {
         this.canvas.width = 800;
         this.canvas.height = 800;
@@ -105,11 +118,15 @@ let gameMaster = {
         this.pipes = [];
         this.pipeDelay = initialPipeDelay;
         highScoreIncreased = false;
+        this.ghostOpacity = 100;
     },
     die: function () {
+        music.pause();
+        if (enableSfx)
+            deathSound.play();
         this.died = true;
         this.started = false;
-        music.pause();
+        this.ghostYPosition = this.playerPos;
     },
     clear: function () {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -151,9 +168,8 @@ gameMaster.canvas.onclick = e => {
     }
 };
 function update() {
-    console.log(enableMusic, enableSfx);
     // check if died
-    if (gameMaster.playerPos > 749) {
+    if (gameMaster.playerPos > 749 && !gameMaster.died) {
         gameMaster.playerPos = 750;
         gameMaster.die();
     }
@@ -162,6 +178,9 @@ function update() {
         if (gameMaster.acceleration < maxDownwardsAcceleration)
             gameMaster.acceleration += gravity;
         gameMaster.playerPos += gameMaster.acceleration;
+    }
+    if (gameMaster.died) {
+        moveGhost();
     }
     // check pipe spawner + score
     if (gameMaster.started && !gameMaster.died && gameMaster.moving) {
@@ -175,8 +194,16 @@ function update() {
     drawBackgrounds();
     drawPipes();
     drawPlayer();
+    if (gameMaster.died)
+        drawGhost();
     drawUI();
     gameMaster.framesSincePipeSpawn += 1;
+}
+function moveGhost() {
+    gameMaster.ghostYPosition -= ghostSpeed;
+    if (Math.abs(gameMaster.ghostRotation) >= ghostTurnMax)
+        gameMaster.ghostTurnDirection == 1 ? gameMaster.ghostTurnDirection = -1 : gameMaster.ghostTurnDirection = 1;
+    gameMaster.ghostRotation += (ghostTurnMultiplier * gameMaster.ghostTurnDirection);
 }
 function moveBackgrounds() {
     gameMaster.backgrounds.forEach(bg => {
@@ -238,6 +265,11 @@ function drawBackgrounds() {
         gameMaster.ctx.drawImage(bg.sprite.img, bg.xPosition, 0, bg.sprite.width, bg.sprite.height);
     });
 }
+function drawPipes() {
+    gameMaster.pipes.forEach(pipe => {
+        gameMaster.ctx.drawImage(pipe.sprite.img, pipe.xPosition, pipe.yPosition, pipe.sprite.width, pipe.sprite.height);
+    });
+}
 function drawPlayer() {
     if (!gameMaster.started && !gameMaster.died)
         return gameMaster.ctx.drawImage(gameMaster.player.img, playerXPos, gameMaster.playerPos, gameMaster.player.width, gameMaster.player.height);
@@ -252,10 +284,18 @@ function drawPlayer() {
     gameMaster.ctx.drawImage(gameMaster.player.img, -gameMaster.player.width / 2, -gameMaster.player.height / 2, gameMaster.player.width, gameMaster.player.height);
     gameMaster.ctx.restore();
 }
-function drawPipes() {
-    gameMaster.pipes.forEach(pipe => {
-        gameMaster.ctx.drawImage(pipe.sprite.img, pipe.xPosition, pipe.yPosition, pipe.sprite.width, pipe.sprite.height);
-    });
+function drawGhost() {
+    gameMaster.ctx.save();
+    gameMaster.ctx.translate(playerXPos + gameMaster.ghost.width / 2, gameMaster.ghostYPosition + gameMaster.ghost.height / 2);
+    gameMaster.ctx.rotate(gameMaster.ghostRotation * Math.PI / 180); // radians again
+    if (gameMaster.ghostOpacity - ghostOpacitySpeed > 0)
+        gameMaster.ghostOpacity -= ghostOpacitySpeed;
+    else
+        gameMaster.ghostOpacity = 0;
+    console.log(gameMaster.ghostOpacity);
+    gameMaster.ctx.globalAlpha = gameMaster.ghostOpacity * 0.01;
+    gameMaster.ctx.drawImage(gameMaster.ghost.img, -gameMaster.ghost.width / 2, -gameMaster.ghost.height / 2, gameMaster.ghost.width, gameMaster.ghost.height);
+    gameMaster.ctx.restore();
 }
 function drawUI() {
     gameMaster.ctx.font = "40px Roboto";
@@ -275,4 +315,4 @@ function drawUI() {
 }
 gameMaster.initiate();
 this.updateIntervalID = setInterval(update, 20);
-//# sourceMappingURL=easteregg.js.map
+//# sourceMappingURL=game.js.map

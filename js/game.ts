@@ -12,6 +12,10 @@ const pipeGap = 84; // in px on png
 const playerXPos = 100;
 const maxUpRot = 45;
 const maxDownRot = 55;
+const ghostSpeed = 2;
+const ghostTurnMax = 2;
+const ghostTurnMultiplier = 0.4;
+const ghostOpacitySpeed = 1;
 
 let highScore: number = Number(localStorage.getItem("high-score")) || 0;
 let highScoreIncreased: boolean = false;
@@ -26,14 +30,18 @@ const pipesWithBallImg = document.createElement("img");
 pipesWithBallImg.src = "../img/game/pipes-with-ball.png";
 const pipesImg = document.createElement("img");
 pipesImg.src = "../img/game/pipes.png";
+const ghostImg = document.createElement("img");
+ghostImg.src = "../img/game/red-ghost.png";
 
 const music = new Audio("../audio/pacman-theme.mp3");
 music.loop = true;
 music.volume = 0.2;
 const nomSounds = [new Audio("../audio/nom/nomnom.m4a"), new Audio("../audio/nom/njam.m4a"), new Audio("../audio/nom/hmmm.m4a")];
+const deathSound = new Audio("../audio/death.mp3");
+deathSound.volume = 0.2;
 
-let enableMusic = true;
-let enableSfx = true;
+let enableMusic: boolean = true;
+let enableSfx: boolean = true;
 const musicElement = document.getElementById("music-checkbox") as HTMLInputElement;
 const sfxElement = document.getElementById("sfx-checkbox") as HTMLInputElement;
 sfxElement.onclick = checkSettings;
@@ -88,6 +96,11 @@ let gameMaster: GameMaster = {
     acceleration: 0, // positive is downwards, negative is upwards
     framesSincePipeSpawn: 0,
     pipeDelay: initialPipeDelay,
+    ghost: new Sprite(40, 40, ghostImg),
+    ghostRotation: 0,
+    ghostYPosition: 0,
+    ghostTurnDirection: 1,
+    ghostOpacity: 100,
     initiate: function() {
         this.canvas.width = 800;
         this.canvas.height = 800;
@@ -112,11 +125,14 @@ let gameMaster: GameMaster = {
         this.pipes = [];
         this.pipeDelay = initialPipeDelay;
         highScoreIncreased = false;
+        this.ghostOpacity = 100;
     },
     die: function() {
+        music.pause();
+        if (enableSfx) deathSound.play();
         this.died = true;
         this.started = false;
-        music.pause();
+        this.ghostYPosition = this.playerPos;
     },
     clear: function() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -164,10 +180,8 @@ gameMaster.canvas.onclick = e => {
 }
 
 function update() {
-    console.log(enableMusic, enableSfx)
-    
     // check if died
-    if (gameMaster.playerPos > 749) {
+    if (gameMaster.playerPos > 749 && !gameMaster.died) {
         gameMaster.playerPos = 750;
         gameMaster.die();
     }
@@ -176,6 +190,10 @@ function update() {
     if (!gameMaster.died && gameMaster.started) {
         if (gameMaster.acceleration < maxDownwardsAcceleration) gameMaster.acceleration += gravity;
         gameMaster.playerPos += gameMaster.acceleration;
+    }
+
+    if (gameMaster.died) {
+        moveGhost();
     }
     
     // check pipe spawner + score
@@ -192,9 +210,16 @@ function update() {
     drawBackgrounds();
     drawPipes();
     drawPlayer();
+    if (gameMaster.died) drawGhost();
     drawUI();
     
     gameMaster.framesSincePipeSpawn += 1;
+}
+
+function moveGhost() {
+    gameMaster.ghostYPosition -= ghostSpeed;
+    if (Math.abs(gameMaster.ghostRotation) >= ghostTurnMax) gameMaster.ghostTurnDirection == 1 ? gameMaster.ghostTurnDirection = -1 : gameMaster.ghostTurnDirection = 1;
+    gameMaster.ghostRotation += (ghostTurnMultiplier * gameMaster.ghostTurnDirection);
 }
 
 function moveBackgrounds() {
@@ -259,6 +284,12 @@ function drawBackgrounds() {
     });
 }
 
+function drawPipes() {
+    gameMaster.pipes.forEach(pipe => {
+        gameMaster.ctx.drawImage(pipe.sprite.img, pipe.xPosition, pipe.yPosition, pipe.sprite.width, pipe.sprite.height);
+    });
+}
+
 function drawPlayer() {
     if (!gameMaster.started && !gameMaster.died) return gameMaster.ctx.drawImage(gameMaster.player.img, playerXPos, gameMaster.playerPos, gameMaster.player.width, gameMaster.player.height);
     
@@ -276,10 +307,16 @@ function drawPlayer() {
     gameMaster.ctx.restore();
 }
 
-function drawPipes() {
-    gameMaster.pipes.forEach(pipe => {
-        gameMaster.ctx.drawImage(pipe.sprite.img, pipe.xPosition, pipe.yPosition, pipe.sprite.width, pipe.sprite.height);
-    });
+function drawGhost() {
+    gameMaster.ctx.save();
+    gameMaster.ctx.translate(playerXPos + gameMaster.ghost.width / 2, gameMaster.ghostYPosition + gameMaster.ghost.height / 2);
+    gameMaster.ctx.rotate(gameMaster.ghostRotation * Math.PI / 180); // radians again
+    if (gameMaster.ghostOpacity - ghostOpacitySpeed > 0) gameMaster.ghostOpacity -= ghostOpacitySpeed;
+    else gameMaster.ghostOpacity = 0;
+    console.log(gameMaster.ghostOpacity);
+    gameMaster.ctx.globalAlpha = gameMaster.ghostOpacity * 0.01;
+    gameMaster.ctx.drawImage(gameMaster.ghost.img, -gameMaster.ghost.width / 2, -gameMaster.ghost.height / 2, gameMaster.ghost.width, gameMaster.ghost.height);
+    gameMaster.ctx.restore();
 }
 
 function drawUI() {
@@ -303,7 +340,7 @@ this.updateIntervalID = setInterval(update, 20);
 interface GameMaster { // for IntelliSense and clarification, not really necessary but I like it
     playerPos: number;
     playerRot: number;
-    started: boolean
+    started: boolean;
     died: boolean;
     jumped: boolean;
     moving: boolean;
@@ -311,10 +348,15 @@ interface GameMaster { // for IntelliSense and clarification, not really necessa
     score: number;
     framesSincePipeSpawn: number;
     pipeDelay: number;
+    ghostRotation: number;
+    ghostYPosition: number;
+    ghostTurnDirection: number; // 1 or -1
+    ghostOpacity: number; // percentage: 0-100
     
     player: Sprite;
     backgrounds: PositionSprite[];
     pipes: PositionSprite[];
+    ghost: Sprite;
     
     canvas: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
