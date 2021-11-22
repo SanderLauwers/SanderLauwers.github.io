@@ -1,4 +1,4 @@
-if (window.innerHeight < 949 || window.innerWidth < 800) alert("Zoom uit voor de beste ervaring!");
+if (window.innerHeight < 949 || window.innerWidth < 800) alert("Zoom uit voor de beste ervaring!\n(ctrl + \"-\" (Windows) of command + \"-\" (Mac))");
 
 const gravity = 1;
 const maxDownwardsAcceleration = 25;
