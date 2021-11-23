@@ -26,6 +26,10 @@ body {
     height: 25px;
     overflow-x: auto;
     overflow-y: hidden;
+    background-color: blue;
+    width: 100%;
+    text-align: center;
+    padding-top: 5px;
 }
 
 #page {

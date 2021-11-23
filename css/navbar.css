@@ -10,6 +10,7 @@ body {
     left: 0;
     right: 0;
     height: 5vh;
+    z-index: 5;
 }
 
 #navbar {
@@ -63,7 +64,7 @@ body {
 
 .selected {
     background-color: rgb(112, 112, 112);
-    cursor: default;   
+    cursor: default;
 }
 
 @media screen and (max-width: 1150px) {

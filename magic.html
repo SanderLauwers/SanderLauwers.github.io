@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="./img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./img/favicon-16x16.png">
     <title>Magic</title>
+    <script src="./js/magic.js" defer></script>
 </head>
 <body>
     <div id="navparent">
@@ -24,11 +25,11 @@
             </div>
         </div>
     </div>
-    
-    <img id="easteregg" src="./img/game/eastereggcolored.png" onclick="location.href = './game.html'">
+
+    <div id="font-loader" style="font-family: pacman-font">Dit moet om het font voor de canvas te laden, wordt meteen hidden</div>
 
     <div id="page">
-        <div id="anim">Magic</div>
+        <canvas id="animation-canvas" width="900" height="450" onclick="toGame()"></canvas>
     </div>   
 </body>
 </html>

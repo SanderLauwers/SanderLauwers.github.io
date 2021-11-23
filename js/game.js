@@ -16,12 +16,16 @@ const ghostSpeed = 2;
 const ghostTurnMax = 2;
 const ghostTurnMultiplier = 0.4;
 const ghostOpacitySpeed = 1;
+const popupSpeed = 5;
+const popupOpacityDecline = 0.05;
 let highScore = Number(localStorage.getItem("high-score")) || 0;
 let highScoreIncreased = false;
 const playerOpenedImg = document.createElement("img");
 playerOpenedImg.src = "../img/game/pac-man-opened.png";
 const playerClosedImg = document.createElement("img");
 playerClosedImg.src = "../img/game/pac-man-closed.png";
+const playerDeadImg = document.createElement("img");
+playerDeadImg.src = "../img/game/pac-man-dead.png";
 const backgroundImg = document.createElement("img");
 backgroundImg.src = "../img/game/background.png";
 const pipesWithBallImg = document.createElement("img");
@@ -49,7 +53,7 @@ function checkSettings() {
         music.pause();
         music.currentTime = 0;
     }
-    else
+    else if (enableMusic && !gameMaster.died && gameMaster.started)
         music.play();
 }
 class Sprite {
@@ -59,6 +63,21 @@ class Sprite {
         this.width = width;
         this.height = height;
         this.img = img;
+    }
+}
+class Popup {
+    constructor(content = "+1", font = "Roboto", fontSize = 10, xPosition = 0, yPosition = 0) {
+        this.content = "+1";
+        this.font = "Roboto";
+        this.fontSize = 10;
+        this.xPosition = 0; // left
+        this.yPosition = 0; // bottom
+        this.opacity = 1;
+        this.content = content;
+        this.font = font;
+        this.fontSize = fontSize;
+        this.xPosition = xPosition;
+        this.yPosition = yPosition;
     }
 }
 class PositionSprite {
@@ -93,6 +112,7 @@ let gameMaster = {
     ghostYPosition: 0,
     ghostTurnDirection: 1,
     ghostOpacity: 100,
+    pointPopups: [],
     initiate: function () {
         this.canvas.width = 800;
         this.canvas.height = 800;
@@ -100,6 +120,7 @@ let gameMaster = {
         for (let i = 0; i < 3; i++) {
             this.backgrounds[i] = new PositionSprite(new Sprite(456, 800, backgroundImg), 0 + i * 456); // original ratio: 144x254
         }
+        gameMaster.ctx.fillStyle = "white";
     },
     start: function () {
         this.started = true;
@@ -119,6 +140,7 @@ let gameMaster = {
         this.pipeDelay = initialPipeDelay;
         highScoreIncreased = false;
         this.ghostOpacity = 100;
+        this.player.img = playerOpenedImg;
     },
     die: function () {
         music.pause();
@@ -127,6 +149,7 @@ let gameMaster = {
         this.died = true;
         this.started = false;
         this.ghostYPosition = this.playerPos;
+        this.player.img = playerDeadImg;
     },
     clear: function () {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -186,6 +209,8 @@ function update() {
     if (gameMaster.started && !gameMaster.died && gameMaster.moving) {
         moveBackgrounds();
         movePipes();
+        if (gameMaster.pointPopups.length > 0)
+            movePopups();
         checkPipeCollision();
     }
     // clear canvas
@@ -196,6 +221,8 @@ function update() {
     drawPlayer();
     if (gameMaster.died)
         drawGhost();
+    if (gameMaster.pointPopups.length > 0)
+        drawPopup();
     drawUI();
     gameMaster.framesSincePipeSpawn += 1;
 }
@@ -230,6 +257,7 @@ function movePipes() {
                 nomSounds[Math.floor(Math.random() * nomSounds.length)].play();
             gameMaster.score += 1;
             pipe.gaveScore = true;
+            gameMaster.pointPopups.push(new Popup("+1", "Roboto", 25, playerXPos, gameMaster.playerPos));
             pipe.sprite.img = pipesImg;
             pipe.sprite.width = 52;
             gameMaster.player.img = playerClosedImg;
@@ -248,6 +276,16 @@ function movePipes() {
     });
     if (indexToDelete != null)
         gameMaster.pipes.splice(indexToDelete, 1);
+}
+function movePopups() {
+    gameMaster.pointPopups.forEach(popup => {
+        popup.xPosition -= speed;
+        popup.yPosition -= popupSpeed;
+        if (popup.opacity - popupOpacityDecline > 0)
+            popup.opacity -= popupOpacityDecline;
+        else
+            popup.opacity = 0;
+    });
 }
 function checkPipeCollision() {
     // first pipe in the array is always the only pipe able to collide (with min delay = 50), which makes this easier :D
@@ -292,10 +330,18 @@ function drawGhost() {
         gameMaster.ghostOpacity -= ghostOpacitySpeed;
     else
         gameMaster.ghostOpacity = 0;
-    console.log(gameMaster.ghostOpacity);
     gameMaster.ctx.globalAlpha = gameMaster.ghostOpacity * 0.01;
     gameMaster.ctx.drawImage(gameMaster.ghost.img, -gameMaster.ghost.width / 2, -gameMaster.ghost.height / 2, gameMaster.ghost.width, gameMaster.ghost.height);
     gameMaster.ctx.restore();
+}
+function drawPopup() {
+    gameMaster.pointPopups.forEach(popup => {
+        gameMaster.ctx.globalAlpha = popup.opacity;
+        gameMaster.ctx.font = `${popup.fontSize}px "${popup.font}"`;
+        gameMaster.ctx.fillStyle = "white";
+        gameMaster.ctx.fillText(popup.content, popup.xPosition, popup.yPosition);
+        gameMaster.ctx.globalAlpha = 1;
+    });
 }
 function drawUI() {
     gameMaster.ctx.font = "40px Roboto";

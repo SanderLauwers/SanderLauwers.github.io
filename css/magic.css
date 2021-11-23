@@ -1,8 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
 
+@font-face {
+    font-family: "pacman-font";
+    src: url(../font/crackman/crackman.ttf) format("truetype"),
+         url(../font/crackman/crackman.woff) format("woff");
+}
+
 body {
-    background-image: linear-gradient(90deg, #070088 0%, #140094 35%, #4600d1 100%);
+    background-image: linear-gradient(90deg, #d1dc01 0%, #ffae00 35%, #ff7b00 100%);
     font-family: "Roboto", Arial;
+    min-width: 300px;
+}
+
+#page {
+    width: 100vw;
 }
 
 .rickcursor {
@@ -17,24 +28,39 @@ body {
     height: 3vh;
 }
 
+#animation-canvas {
+    background-color: transparent;
+    width: 75%;
+    cursor: pointer;
+}
 
-@keyframes comein {
-    0% {
-        left: -50vw;
+#page {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 90vh; /* Canvas a bit more to the top, looks better */
+    left: 0;
+    top: 5vh;
+}
+
+@media screen and (min-aspect-ratio: 16/11) {
+    #animation-canvas {
+        width: 50%;
     }
-    to {
-        left: 0;
+    #page {
+        height: 90vh;
     }
 }
 
-#anim {
-    position: absolute;
-    animation-name: comein;
-    animation-duration: 2s;
-    left: 50vw;
-    color: white;
-    font-size: 50px;
-    text-align: center;
-    width: 100%;
-    height: 50px;
+@media screen and (min-aspect-ratio: 2/1) {
+    #animation-canvas {
+        width: 80vh;
+    }
+    #page {
+        top: 15vh;
+        height: 85vh;
+    }
 }
