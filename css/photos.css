@@ -39,8 +39,8 @@ body {
     align-items: center;
 }
 
-@media screen and (max-width: 1234px) {
+@media screen and (max-width: 1350px) {
     #photo-nav {
-        overflow-y: scroll;
+        height: 50px;
     }
 }

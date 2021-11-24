@@ -1,5 +1,4 @@
-if (window.innerHeight < 949 || window.innerWidth < 800)
-    alert("Zoom uit voor de beste ervaring!\n(ctrl + \"-\" (Windows) of command + \"-\" (Mac))");
+// if (window.innerHeight < 990 || window.innerWidth < 800) alert("Zoom uit voor de beste ervaring!\n(ctrl + \"-\" (Windows) of command + \"-\" (Mac))"); not needed anymore
 const gravity = 1;
 const maxDownwardsAcceleration = 25;
 const jumpForce = -14;
