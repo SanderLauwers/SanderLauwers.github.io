@@ -30,6 +30,8 @@ const backgroundImg = document.createElement("img");
 backgroundImg.src = "../img/game/background.png";
 const pipesWithBallImg = document.createElement("img");
 pipesWithBallImg.src = "../img/game/pipes-with-ball.png";
+const pipesWithCookieImg = document.createElement("img");
+pipesWithCookieImg.src = "../img/game/pipes-with-cookie.png";
 const pipesImg = document.createElement("img");
 pipesImg.src = "../img/game/pipes.png";
 const ghostImg = document.createElement("img");
@@ -38,17 +40,23 @@ const music = new Audio("../audio/pacman-theme.mp3");
 music.loop = true;
 music.volume = 0.2;
 const nomSounds = [new Audio("../audio/nom/nomnom.m4a"), new Audio("../audio/nom/njam.m4a"), new Audio("../audio/nom/hmmm.m4a")];
+const highScoreSound = new Audio("../audio/nom/lekkah.m4a");
 const deathSound = new Audio("../audio/death.mp3");
 deathSound.volume = 0.2;
-let enableMusic = true;
-let enableSfx = true;
+let enableMusic = window.localStorage.getItem("enableMusic") == "0" ? false : true;
+let enableSfx = window.localStorage.getItem("enableSfx") == "0" ? false : true;
 const musicElement = document.getElementById("music-checkbox");
 const sfxElement = document.getElementById("sfx-checkbox");
+console.log(window.localStorage.getItem("enableMusic"));
+musicElement.checked = enableMusic;
+sfxElement.checked = enableSfx;
 sfxElement.onclick = checkSettings;
 musicElement.onclick = checkSettings;
 function checkSettings() {
     enableMusic = musicElement.checked;
     enableSfx = sfxElement.checked;
+    window.localStorage.setItem("enableMusic", enableMusic ? "1" : "0");
+    window.localStorage.setItem("enableSfx", enableSfx ? "1" : "0");
     if (!enableMusic) {
         music.pause();
         music.currentTime = 0;
@@ -99,6 +107,7 @@ let gameMaster = {
     player: new Sprite(50, 50, playerOpenedImg),
     backgrounds: [],
     pipes: [],
+    totalPipes: 0,
     died: false,
     started: false,
     score: 0,
@@ -141,6 +150,7 @@ let gameMaster = {
         highScoreIncreased = false;
         this.ghostOpacity = 100;
         this.player.img = playerOpenedImg;
+        this.totalPipes = 0;
     },
     die: function () {
         music.pause();
@@ -242,19 +252,24 @@ function moveBackgrounds() {
 function movePipes() {
     // check for new pipe
     if (gameMaster.framesSincePipeSpawn >= gameMaster.pipeDelay) {
+        ++gameMaster.totalPipes;
         gameMaster.framesSincePipeSpawn = 0;
         if (gameMaster.pipeDelay > minPipeDelay)
             gameMaster.pipeDelay -= pipeDelayDecline;
         const yPos = (-pipeLength * 2) + 120 + Math.floor(Math.random() * (560 - (pipeGap * 2)));
-        gameMaster.pipes.push(new PositionSprite(new Sprite(110, 1200, pipesWithBallImg), 800, yPos)); // original size: 26x600, so *2
+        if (gameMaster.totalPipes == highScore + 1 && !highScoreIncreased)
+            gameMaster.pipes.push(new PositionSprite(new Sprite(110, 1200, pipesWithCookieImg), 800, yPos)); // original size: 26x600, so *2
+        else
+            gameMaster.pipes.push(new PositionSprite(new Sprite(110, 1200, pipesWithBallImg), 800, yPos));
     }
     // move pipes
     let indexToDelete = null;
     gameMaster.pipes.forEach((pipe, index) => {
+        var _a;
         pipe.xPosition -= speed;
         if (pipe.xPosition <= playerXPos - 52 && !pipe.gaveScore) { // give score
             if (enableSfx)
-                nomSounds[Math.floor(Math.random() * nomSounds.length)].play();
+                (highScoreIncreased || gameMaster.score < highScore) ? (_a = nomSounds[Math.floor(Math.random() * nomSounds.length)]) === null || _a === void 0 ? void 0 : _a.play() : highScoreSound === null || highScoreSound === void 0 ? void 0 : highScoreSound.play();
             gameMaster.score += 1;
             pipe.gaveScore = true;
             gameMaster.pointPopups.push(new Popup("+1", "Roboto", 25, playerXPos, gameMaster.playerPos));
