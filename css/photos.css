@@ -8,7 +8,7 @@
 
 body {
     font-family: "Roboto", Arial;
-    background-color: blue;
+    background-color: #ff7b00;
     height: 100vh;
     margin: 0;
 }
@@ -21,15 +21,14 @@ body {
 
 #photo-nav {
     position: absolute;
-    bottom: 0;
-    right: 1%;
+    top: 5vh;
     height: 25px;
     overflow-x: auto;
     overflow-y: hidden;
     background-color: blue;
     width: 100%;
     text-align: center;
-    padding-top: 5px;
+    z-index: 5; /*in front of pictures*/
 }
 
 #page {
@@ -37,10 +36,39 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    top: calc(5vh + 25px);
+    height: calc(95vh - 25px)
 }
 
-@media screen and (max-width: 1350px) {
+@media screen and (max-width: 1283px) {
     #photo-nav {
         height: 50px;
+    }
+
+    #page {
+        top: calc(50px + 5vh);
+        height: calc(100vh - 50px - 5vh);
+    }
+}
+
+@media screen and (max-height: 1100px) {
+    #photo-nav {
+        top: 55px;
+    }
+
+    #page {
+        top: 80px;
+        height: calc(100vh - 80px);
+    }
+}
+
+@media screen and (max-height: 1100px) and (max-width: 1283px) {
+    #photo-nav {
+        top: 55px;
+    }
+
+    #page {
+        top: 105px;
+        height: calc(100vh - 105px);
     }
 }

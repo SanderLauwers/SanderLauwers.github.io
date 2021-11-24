@@ -50,7 +50,7 @@ body {
     position: absolute;
     margin: 0;
     left: 0;
-    height: 93.6vh; /*De div wordt langer dan hij zou horen te zijn?*/
+    height: 95vh;
     overflow-y: auto;
 }
 
@@ -84,5 +84,6 @@ body {
 
     #page {
         top: 55px;
+        height: calc(100vh - 55px);
     }
 }
