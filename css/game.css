@@ -120,7 +120,7 @@ body {
     border-radius: 5px;
 }
 
-@media screen and (max-height: 990px) {
+@media screen and (max-height: 990px) and (max-width: 918px) {
     #zoom-out {
         opacity: 1;
     }
@@ -128,7 +128,17 @@ body {
         opacity: 1;
     }
 }
+
 @media screen and (max-width: 800px) {
+    #zoom-out {
+        opacity: 1;
+    }
+    #zoom-out-text {
+        opacity: 1;
+    }
+}
+
+@media screen and (max-height: 954px) {
     #zoom-out {
         opacity: 1;
     }
