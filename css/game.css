@@ -107,7 +107,7 @@ body {
     align-items: center;
     justify-content: center;
 
-    z-index: 10000; /*on top!*/
+    z-index: -5; /*on top!*/
 }
 
 #zoom-out-text {
@@ -123,6 +123,7 @@ body {
 @media screen and (max-height: 990px) and (max-width: 918px) {
     #zoom-out {
         opacity: 1;
+        z-index: 1000;    
     }
     #zoom-out-text {
         opacity: 1;
@@ -132,6 +133,7 @@ body {
 @media screen and (max-width: 800px) {
     #zoom-out {
         opacity: 1;
+        z-index: 1000;
     }
     #zoom-out-text {
         opacity: 1;
@@ -141,6 +143,7 @@ body {
 @media screen and (max-height: 954px) {
     #zoom-out {
         opacity: 1;
+        z-index: 1000;   
     }
     #zoom-out-text {
         opacity: 1;
